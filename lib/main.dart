@@ -28,8 +28,17 @@ class HorizonsApp extends StatelessWidget {
             SliverAppBar(
               backgroundColor: Colors.teal[800],
               pinned: true,
+              stretch: true,
+              onStretchTrigger: () async {
+                print('Load more data');
+              },
               expandedHeight: 200.0,
               flexibleSpace: FlexibleSpaceBar(
+                stretchModes: const [
+                  StretchMode.zoomBackground,
+                  StretchMode.blurBackground,
+                  StretchMode.fadeTitle,
+                ],
                 title: const Text('Horizons'),
                 centerTitle: true,
                 background: DecoratedBox(
