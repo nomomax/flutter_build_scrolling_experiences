@@ -27,7 +27,9 @@ class HorizonsApp extends StatelessWidget {
           title: const Text('Horizons'),
           backgroundColor: Colors.teal[800],
         ),
-        body: const WeeklyForecastList(),
+        body: const CustomScrollView(
+          slivers: [WeeklyForecastList()],
+        ),
       ),
     );
   }
@@ -41,70 +43,71 @@ class WeeklyForecastList extends StatelessWidget {
     final DateTime currentDate = DateTime.now();
     final TextTheme textTheme = Theme.of(context).textTheme;
 
-    return ListView.builder(
-        itemCount: 7,
-        itemBuilder: (BuildContext context, int index) {
-          final DailyForecast dailyForecast =
-              Server.getDailyForecastByID(index);
-          return Card(
-            child: Row(
-              children: [
-                SizedBox(
-                  height: 200.0,
-                  width: 200.0,
-                  child: Stack(
-                    fit: StackFit.expand,
+    return SliverList(
+        delegate: SliverChildBuilderDelegate(
+      (BuildContext context, int index) {
+        final DailyForecast dailyForecast = Server.getDailyForecastByID(index);
+        return Card(
+          child: Row(
+            children: [
+              SizedBox(
+                height: 200.0,
+                width: 200.0,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    DecoratedBox(
+                      position: DecorationPosition.foreground,
+                      decoration: BoxDecoration(
+                        gradient: RadialGradient(
+                          colors: [
+                            Colors.grey[800]!,
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                      child: Image.network(
+                        dailyForecast.imageId,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    Center(
+                      child: Text(
+                        dailyForecast.getDate(currentDate.day).toString(),
+                        style: textTheme.headlineMedium,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      DecoratedBox(
-                        position: DecorationPosition.foreground,
-                        decoration: BoxDecoration(
-                          gradient: RadialGradient(
-                            colors: [
-                              Colors.grey[800]!,
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                        child: Image.network(
-                          dailyForecast.imageId,
-                          fit: BoxFit.cover,
-                        ),
+                      Text(
+                        dailyForecast.getWeekday(currentDate.weekday),
+                        style: textTheme.headlineSmall,
                       ),
-                      Center(
-                        child: Text(
-                          dailyForecast.getDate(currentDate.day).toString(),
-                          style: textTheme.headlineMedium,
-                        ),
-                      ),
+                      Text(dailyForecast.description),
                     ],
                   ),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          dailyForecast.getWeekday(currentDate.weekday),
-                          style: textTheme.headlineSmall,
-                        ),
-                        Text(dailyForecast.description),
-                      ],
-                    ),
-                  ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  '${dailyForecast.highTemp} | ${dailyForecast.lowTemp} F',
+                  style: textTheme.titleSmall,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    '${dailyForecast.highTemp} | ${dailyForecast.lowTemp} F',
-                    style: textTheme.titleSmall,
-                  ),
-                ),
-              ],
-            ),
-          );
-        });
+              ),
+            ],
+          ),
+        );
+      },
+      childCount: 7,
+    ));
   }
 }
 
